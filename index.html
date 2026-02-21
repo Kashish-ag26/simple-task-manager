@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Launcher</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #09090b;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+    .card {
+      text-align: center;
+      padding: 48px 40px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 24px;
+      max-width: 460px;
+      width: 90%;
+      box-shadow: 0 25px 80px rgba(99,102,241,0.15);
+    }
+    .logo {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 900;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.4);
+    }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #fff; }
+    .subtitle { color: #71717a; font-size: 15px; margin-bottom: 32px; }
+    .status-box {
+      background: #09090b;
+      border: 2px solid #27272a;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+    .status-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; font-size: 14px;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #52525b;
+      transition: background 0.4s;
+    }
+    .dot.online { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
+    .dot.offline { background: #f43f5e; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+    }
+    #status-text { color: #a1a1aa; }
+    .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      width: 100%;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .steps {
+      margin-top: 28px;
+      text-align: left;
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .steps p { color: #52525b; font-size: 12px; margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .steps ol { color: #a1a1aa; font-size: 13px; padding-left: 18px; line-height: 2; }
+    .steps ol li code {
+      background: #27272a; padding: 2px 6px; border-radius: 5px;
+      color: #818cf8; font-family: monospace;
+    }
+    #open-btn { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">T</div>
+    <h1>TaskFlow</h1>
+    <p class="subtitle">Your smart task management platform</p>
+
+    <div class="status-box">
+      <div class="status-row">
+        <div class="dot" id="dot"></div>
+        <span id="status-text">Checking server...</span>
+      </div>
+    </div>
+
+    <!-- Button shown when server is online -->
+    <a href="http://localhost:3000" id="open-btn" class="btn">Open TaskFlow →</a>
+
+    <!-- Instructions shown when server is offline -->
+    <div class="steps" id="steps-box">
+      <p>How to start the server</p>
+      <ol>
+        <li>Double-click <code>Start TaskFlow.bat</code> in this folder</li>
+        <li>Wait ~10 seconds for it to start</li>
+        <li>This page will auto-refresh and open the app</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    const dot = document.getElementById('dot');
+    const statusText = document.getElementById('status-text');
+    const openBtn = document.getElementById('open-btn');
+    const stepsBox = document.getElementById('steps-box');
+
+    async function checkServer() {
+      try {
+        const res = await fetch('http://localhost:3000', { method: 'HEAD', mode: 'no-cors' });
+        // no-cors means we can't read status, but if fetch resolves = server is up
+        dot.className = 'dot online';
+        statusText.textContent = 'Server is running at localhost:3000';
+        openBtn.style.display = 'block';
+        stepsBox.style.display = 'none';
+        // Auto-redirect after 1.5s
+        setTimeout(() => { window.location.href = 'http://localhost:3000'; }, 1500);
+      } catch {
+        dot.className = 'dot offline';
+        statusText.textContent = 'Server is not running';
+        openBtn.style.display = 'none';
+        stepsBox.style.display = 'block';
+        // Keep checking every 3 seconds
+        setTimeout(checkServer, 3000);
+      }
+    }
+
+    checkServer();
+  </script>
+</body>
+</html>

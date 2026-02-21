@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum UserLevel {
+  BEGINNER
+  PERFORMER
+  PRO
+  MASTER
+}
+
+enum RecurrenceType {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum Mood {
+  GREAT
+  GOOD
+  NEUTRAL
+  BAD
+  TERRIBLE
+}
+
+model User {
+  id                  String            @id @default(cuid())
+  name                String
+  email               String            @unique
+  password            String
+  role                Role              @default(USER)
+  emailVerified       Boolean           @default(false)
+  verificationOtp     String?
+  otpExpiry           DateTime?
+  resetPasswordToken  String?           @unique
+  resetPasswordExpiry DateTime?
+  weeklyScore         Int               @default(0)
+  monthlyScore        Int               @default(0)
+  totalScore          Int               @default(0)
+  streak              Int               @default(0)
+  lastActiveDate      DateTime?
+  level               UserLevel         @default(BEGINNER)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  assignedTasks       Task[]            @relation("AssignedTo")
+  createdTasks        Task[]            @relation("CreatedBy")
+  focusSessions       FocusSession[]
+  achievements        UserAchievement[]
+  notifications       Notification[]
+  moodEntries         MoodEntry[]
+  teamMemberships     TeamMember[]
+  createdTeams        Team[]            @relation("TeamCreatedBy")
+
+  @@map("users")
+}
+
+model Task {
+  id              String         @id @default(cuid())
+  title           String
+  description     String?
+  status          TaskStatus     @default(PENDING)
+  priority        Priority       @default(MEDIUM)
+  dueDate         DateTime?
+  imageUrl        String?
+  recurrenceType  RecurrenceType @default(NONE)
+  parentTaskId    String?
+  teamId          String?
+  assignedToId    String
+  createdById     String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  assignedTo      User           @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: Cascade)
+  createdBy       User           @relation("CreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  focusSessions   FocusSession[]
+  subtasks        Subtask[]
+  team            Team?          @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  parentTask      Task?          @relation("TaskRecurrence", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  childTasks      Task[]         @relation("TaskRecurrence")
+
+  @@map("tasks")
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  title     String
+  completed Boolean  @default(false)
+  order     Int      @default(0)
+  taskId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("subtasks")
+}
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  createdById String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdBy   User         @relation("TeamCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  tasks       Task[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String @id @default(cuid())
+  teamId   String
+  userId   String
+  joinedAt DateTime @default(now())
+  team     Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model MoodEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  mood        Mood
+  note        String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("mood_entries")
+}
+
+model FocusSession {
+  id          String   @id @default(cuid())
+  userId      String
+  taskId      String
+  duration    Int      // minutes
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("focus_sessions")
+}
+
+model Achievement {
+  id          String            @id @default(cuid())
+  key         String            @unique
+  title       String
+  description String
+  icon        String
+  createdAt   DateTime          @default(now())
+  users       UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info") // info | success | warning | achievement
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
