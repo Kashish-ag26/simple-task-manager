@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className={CARD + " flex flex-col items-center justify-center gap-2"}>
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Completion Rate</h3>
-            <CompletionRing rate={data.completionRate} />
+            <CompletionRing rate={data.completionRate ?? 0} />
             <div className="mt-2 flex w-full justify-around text-center text-xs text-slate-500">
               <div><p className="text-lg font-bold text-green-500">{data.completedTasks}</p><p>Done</p></div>
               <div><p className="text-lg font-bold text-blue-500">{data.inProgressTasks}</p><p>Active</p></div>
@@ -91,8 +91,8 @@ export default function AdminDashboardPage() {
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tasks by Status</h3>
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={data.tasksByStatus} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4} dataKey="value">
-                  {data.tasksByStatus.map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
+                <Pie data={data.tasksByStatus ?? []} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4} dataKey="value">
+                  {(data.tasksByStatus ?? []).map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: "10px", border: "none", fontSize: "12px" }} />
                 <Legend verticalAlign="bottom" height={30} formatter={(v) => <span className="text-xs text-slate-500">{v}</span>} />

@@ -49,9 +49,9 @@ export interface AnalyticsData {
   completedTasks: number;
   pendingTasks: number;
   inProgressTasks: number;
-  completionRate: number;
+  completionRate?: number;
   tasksByPriority: { name: string; value: number; color: string }[];
-  tasksByStatus: { name: string; value: number; color: string }[];
+  tasksByStatus?: { name: string; value: number; color: string }[];
   recentTasks: TaskWithRelations[];
   totalUsers: number;
   weeklyCompletion?: { day: string; completed: number; created: number }[];
