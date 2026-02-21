@@ -49,11 +49,24 @@ export interface AnalyticsData {
   completedTasks: number;
   pendingTasks: number;
   inProgressTasks: number;
+  completionRate: number;
   tasksByPriority: { name: string; value: number; color: string }[];
+  tasksByStatus: { name: string; value: number; color: string }[];
   recentTasks: TaskWithRelations[];
   totalUsers: number;
-  weeklyCompletion?: { day: string; completed: number }[];
+  weeklyCompletion?: { day: string; completed: number; created: number }[];
+  userGrowth?: { month: string; users: number }[];
   topUsers?: { name: string; monthlyScore: number; level: UserLevel }[];
+  userStats?: {
+    name: string;
+    email: string;
+    level: string;
+    totalScore: number;
+    total: number;
+    completed: number;
+    inProgress: number;
+    pending: number;
+  }[];
 }
 
 export interface NotificationItem {
