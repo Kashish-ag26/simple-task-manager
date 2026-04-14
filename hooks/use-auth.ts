@@ -75,7 +75,7 @@ export function useAuth() {
     await fetch("/api/auth/logout", { method: "POST" });
     clearAuth();
     toast.success("Logged out");
-    router.push("/login");
+    router.push("/");
   };
 
   return { user, isLoading, login, register, logout, fetchUser };
