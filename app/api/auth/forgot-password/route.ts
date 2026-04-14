@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import prisma from "@/server/prisma";
 import { errorResponse, successResponse } from "@/server/api-response";
 import { generateOTP, sendPasswordResetEmail } from "@/server/email";

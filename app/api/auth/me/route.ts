@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import prisma from "@/server/prisma";
 import { getTokenFromCookies, verifyToken } from "@/server/auth";
 import { successResponse, errorResponse } from "@/server/api-response";

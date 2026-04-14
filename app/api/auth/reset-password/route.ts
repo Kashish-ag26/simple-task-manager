@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import prisma from "@/server/prisma";
 import { hashPassword } from "@/server/auth";
 import { errorResponse, successResponse } from "@/server/api-response";

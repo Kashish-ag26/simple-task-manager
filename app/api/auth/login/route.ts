@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import prisma from "@/server/prisma";
 import { comparePassword, generateToken, setAuthCookie } from "@/server/auth";
 import { loginSchema } from "@/server/validations";

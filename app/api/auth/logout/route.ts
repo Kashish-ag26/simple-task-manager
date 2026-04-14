@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { removeAuthCookie } from "@/server/auth";
 import { successResponse, errorResponse } from "@/server/api-response";
 
